@@ -20,6 +20,8 @@ import java.util.concurrent.Executor;
 public class SubscriberDemo {
 
     private Logger logger = LoggerFactory.getLogger(SubscriberDemo.class);
+    private Subscriber subscriber = null;
+    private List<String> scopeList = new ArrayList<>();
 
     class ThreadPerTaskExecutor implements Executor {
         public void execute(Runnable r) {
@@ -35,6 +37,9 @@ public class SubscriberDemo {
         String subscriberId = System.getProperty("subscriberId");
         String project = System.getProperty("project");
 
+
+        scopeList.add("https://www.googleapis.com/auth/pubsub");
+
         logger.info("***** TestSubscribe Starts  ***** ");
 
         logger.info("Project is : " + project);
@@ -45,16 +50,16 @@ public class SubscriberDemo {
         // Async message receiver
         MessageReceiver messageReceiver = new MessageReceiver() {
             public void receiveMessage(PubsubMessage pubsubMessage, AckReplyConsumer ackReplyConsumer) {
-                logger.info("Received message with id :" + pubsubMessage.getMessageId());
-                logger.info("Received message with content :" + pubsubMessage.getData().toStringUtf8());
+
+                if (pubsubMessage.getData().toStringUtf8().equals("STOP")) {
+                    stopSubscriber();
+                } else {
+                    logger.info("Received message with id :" + pubsubMessage.getMessageId());
+                    logger.info("Received message with content :" + pubsubMessage.getData().toStringUtf8());
+                }
                 ackReplyConsumer.ack();
             }
         };
-
-
-        Subscriber subscriber = null;
-        List<String> scopeList = new ArrayList<>();
-        scopeList.add("https://www.googleapis.com/auth/pubsub");
 
         try {
 
@@ -83,6 +88,19 @@ public class SubscriberDemo {
                 subscriber.stopAsync();
             }
         }
-
     }
+
+    /**
+     * Stop Subscriber
+     */
+    private void stopSubscriber() {
+        logger.info("Mannerly stopping subscriber...");
+        try {
+            subscriber.stopAsync();
+            logger.info("Stopped.");
+        } catch (Exception e) {
+            logger.error(e.getLocalizedMessage());
+        }
+    }
+
 }
