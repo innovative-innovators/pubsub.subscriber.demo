@@ -52,7 +52,14 @@ public class SubscriberDemo {
             public void receiveMessage(PubsubMessage pubsubMessage, AckReplyConsumer ackReplyConsumer) {
 
                 if (pubsubMessage.getData().toStringUtf8().equals("STOP")) {
-                    stopSubscriber();
+
+                    logger.info("Mannerly stopping subscriber...");
+
+                    ackReplyConsumer.ack();
+                    subscriber.stopAsync();
+
+                    logger.info("Stopped.");
+
                 } else {
                     logger.info("Received message with id :" + pubsubMessage.getMessageId());
                     logger.info("Received message with content :" + pubsubMessage.getData().toStringUtf8());
@@ -87,19 +94,6 @@ public class SubscriberDemo {
             if (subscriber != null) {
                 subscriber.stopAsync();
             }
-        }
-    }
-
-    /**
-     * Stop Subscriber
-     */
-    private void stopSubscriber() {
-        logger.info("Mannerly stopping subscriber...");
-        try {
-            subscriber.stopAsync();
-            logger.info("Stopped.");
-        } catch (Exception e) {
-            logger.error(e.getLocalizedMessage());
         }
     }
 
