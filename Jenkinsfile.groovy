@@ -19,7 +19,7 @@ node {
         sh("mkdir ${tempDir}/${currentProject}")
 
         dir("${tempDir}/${currentProject}") {
-            git 'https://github.com/innovative-innovators/pubsub.subscriber.demo.git'
+            git (branch:'dev', url:'https://github.com/innovative-innovators/pubsub.subscriber.demo.git')
         }
     }
 

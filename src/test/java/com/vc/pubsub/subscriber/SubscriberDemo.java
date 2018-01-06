@@ -136,9 +136,4 @@ public class SubscriberDemo {
 
     }
 
-    @Test
-    public void testWriteToGCS(){
-        writeToGCS("vc-bucket","test");
-    }
-
 }
