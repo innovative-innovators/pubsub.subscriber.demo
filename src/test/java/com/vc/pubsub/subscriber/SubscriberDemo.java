@@ -4,12 +4,14 @@ import com.google.api.gax.core.GoogleCredentialsProvider;
 import com.google.cloud.pubsub.v1.AckReplyConsumer;
 import com.google.cloud.pubsub.v1.MessageReceiver;
 import com.google.cloud.pubsub.v1.Subscriber;
+import com.google.cloud.storage.*;
 import com.google.pubsub.v1.PubsubMessage;
 import com.google.pubsub.v1.SubscriptionName;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -22,6 +24,10 @@ public class SubscriberDemo {
     private Logger logger = LoggerFactory.getLogger(SubscriberDemo.class);
     private Subscriber subscriber = null;
     private List<String> scopeList = new ArrayList<>();
+
+    private Bucket bucket = null;
+    private long bucketMetageneration = 42;
+
 
     class ThreadPerTaskExecutor implements Executor {
         public void execute(Runnable r) {
@@ -36,6 +42,7 @@ public class SubscriberDemo {
         // From - mvn -Dtest=PublisherDemo#testArgLine -DargLine="-Dproject=AAA -Dtopic=BBB" test
         String subscriberId = System.getProperty("subscriberId");
         String project = System.getProperty("project");
+        String bucketName = System.getProperty("bucket");
 
 
         scopeList.add("https://www.googleapis.com/auth/pubsub");
@@ -63,6 +70,9 @@ public class SubscriberDemo {
                 } else {
                     logger.info("Received message with id :" + pubsubMessage.getMessageId());
                     logger.info("Received message with content :" + pubsubMessage.getData().toStringUtf8());
+
+                    writeToGCS(bucketName, pubsubMessage.getData().toStringUtf8());
+
                 }
                 ackReplyConsumer.ack();
             }
@@ -95,6 +105,31 @@ public class SubscriberDemo {
                 subscriber.stopAsync();
             }
         }
+    }
+
+    /**
+     * Write content to GCS bucket
+     *
+     * @param bucketName
+     * @param content
+     */
+    private void writeToGCS(String bucketName, String content) {
+
+        Storage storage = StorageOptions.getDefaultInstance().getService();
+
+        bucket = storage.get(bucketName,
+                Storage.BucketGetOption.metagenerationMatch(bucketMetageneration));
+
+        try {
+
+            Blob blob = bucket.create("pubsub-write-dir/testWriteFile.txt", content.getBytes("UTF-8"));
+            logger.info("Wrote to blob : " + blob.getName() + "[ " + blob.getMd5() + "].");
+
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            logger.error(e.getLocalizedMessage());
+        }
+
     }
 
 }
