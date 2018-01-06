@@ -51,6 +51,7 @@ public class SubscriberDemo {
 
         logger.info("Project is : " + project);
         logger.info("SubscriberId is : " + subscriberId);
+        logger.info("Bucket is : " + bucketName);
 
         SubscriptionName subscriptionName = SubscriptionName.of(project, subscriberId);
 
@@ -115,11 +116,14 @@ public class SubscriberDemo {
      */
     private void writeToGCS(String bucketName, String content) {
 
+        logger.debug("BucketName is " + bucketName + ", content is " + content);
+
         Storage storage = StorageOptions.getDefaultInstance().getService();
 
         bucket = storage.get(bucketName,
                 Storage.BucketGetOption.metagenerationMatch(bucketMetageneration));
 
+        logger.debug("Before entering \"bucket create\"");
         try {
 
             Blob blob = bucket.create("pubsub-write-dir/testWriteFile.txt", content.getBytes("UTF-8"));
@@ -130,6 +134,11 @@ public class SubscriberDemo {
             logger.error(e.getLocalizedMessage());
         }
 
+    }
+
+    @Test
+    public void testWriteToGCS(){
+        writeToGCS("vc-bucket","test");
     }
 
 }
