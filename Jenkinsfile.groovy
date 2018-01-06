@@ -40,7 +40,7 @@ node {
 
         project = inputParams['Project Name']
         subscription = inputParams['Subscriber Name']
-        bucket = inputParams['bucket Name']
+        bucket = inputParams['Bucket Name']
 
         echo("Project is : " + project)
         echo("Subscription is : " + subscription)
