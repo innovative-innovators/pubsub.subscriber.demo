@@ -9,12 +9,12 @@
         </layout>
     </appender>
 
-    <logger name="com.vc" level="DEBUG"
+    <logger name="com.vc" level="INFO"
             additivity="false">
         <appender-ref ref="STDOUT" />
     </logger>
 
-    <root level="DEBUG">
+    <root level="ERROR">
         <appender-ref ref="STDOUT" />
     </root>
 
