@@ -49,8 +49,7 @@ node {
 
     stage("Execute Subscription Stream") {
         dir("${tempDir}/${currentProject}") {
-//            sh("${mvnHome}/bin/mvn -Dtest=SubscriberDemo#testSubscribe -DargLine=\"-Dproject=${project} -DsubscriberId=${subscription} -Dbucket=${bucket} -javaagent:/home/vincent_chen/.m2/repository/org/mortbay/jetty/alpn/jetty-alpn-agent/2.0.6/jetty-alpn-agent-2.0.6.jar -Xmx2048m\" test")
-            sh("${mvnHome}/bin/mvn -Dtest=SubscriberDemo#testWriteToGCS -DargLine=\"-Dproject=${project} -DsubscriberId=${subscription} -Dbucket=${bucket} -javaagent:/home/vincent_chen/.m2/repository/org/mortbay/jetty/alpn/jetty-alpn-agent/2.0.6/jetty-alpn-agent-2.0.6.jar -Xmx2048m\" test")
+            sh("${mvnHome}/bin/mvn -Dtest=SubscriberDemo#testSubscribe -DargLine=\"-Dproject=${project} -DsubscriberId=${subscription} -Dbucket=${bucket} -javaagent:/home/vincent_chen/.m2/repository/org/mortbay/jetty/alpn/jetty-alpn-agent/2.0.6/jetty-alpn-agent-2.0.6.jar -Xmx2048m\" test")
         }
     }
 }
