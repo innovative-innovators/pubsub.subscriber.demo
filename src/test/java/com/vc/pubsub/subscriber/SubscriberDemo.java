@@ -1,8 +1,6 @@
 package com.vc.pubsub.subscriber;
 
-import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.gax.core.GoogleCredentialsProvider;
-import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.pubsub.v1.AckReplyConsumer;
 import com.google.cloud.pubsub.v1.MessageReceiver;
 import com.google.cloud.pubsub.v1.Subscriber;
@@ -13,10 +11,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -30,7 +28,7 @@ public class SubscriberDemo {
     private List<String> scopeList = new ArrayList<>();
 
     private Bucket bucket = null;
-    private long bucketMetageneration = 42;
+    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyymmdd_HHMMSS");
 
 
     class ThreadPerTaskExecutor implements Executor {
@@ -124,18 +122,12 @@ public class SubscriberDemo {
             logger.debug("BucketName is " + bucketName + ", content is " + content);
 
             Storage storage = StorageOptions.getDefaultInstance().getService();
-//            Storage storage = StorageOptions.newBuilder()
-////                    .setCredentials(ServiceAccountCredentials.fromStream(new FileInputStream("D:\\Download\\FCR IT-506f6637ea43-vincent-customize-service-account.json")))
-//                    .build()
-//                    .getService();
 
-            bucket = storage.get(bucketName,
-                    Storage.BucketGetOption.metagenerationMatch(bucketMetageneration));
+            bucket = storage.get(bucketName);
 
-            logger.debug("Before entering \"bucket create\"");
             try {
 
-                Blob blob = bucket.create("pubsub-write-dir/testWriteFile.txt", content.getBytes("UTF-8"));
+                Blob blob = bucket.create("pubsub-write-dir/testWriteFile-" + simpleDateFormat.format(Calendar.getInstance().getTime()) + ".txt", content.getBytes("UTF-8"));
                 logger.info("Wrote to blob : " + blob.getName() + "[ " + blob.getMd5() + "].");
 
             } catch (UnsupportedEncodingException e) {
@@ -146,22 +138,6 @@ public class SubscriberDemo {
             e.printStackTrace();
         }
 
-    }
-
-    @Test
-    public void testWriteToGCS() {
-//        writeToGCS("vc-bucket", "Hello");
-        try {
-            GoogleCredential credential = GoogleCredential.getApplicationDefault();
-
-            logger.info(credential.getServiceAccountId());
-            logger.info(credential.getServiceAccountPrivateKeyId());
-
-            credential.getServiceAccountScopes().forEach(s -> logger.info(s));
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
 }
